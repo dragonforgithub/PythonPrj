@@ -274,25 +274,25 @@ def parseCommand(command):
 def help():
     starCount=100
     print('*'*starCount)
-    print('Usage : python topo_gen.py -options')
+    print('Usage : python topologyParse.py -options')
     print('\noptions :\n')
     print('''-t:topology XML. 
              e.g.
-             python topo_gen.py -t:titan17x_usecases.xml
+             python topologyParse.py -t:titan17x_usecases.xml
     ''')
     print('''-u:usecaseName  ,draw an usecase. 
              e.g.
-             python topo_gen.py -u:UsecaseRaw8 
+             python topologyParse.py -u:UsecaseRaw8 
              will draw usecase topology of UsecaseRaw8
     ''')
     print('''-p:pipelineName ,draw a pipeline.
              e.g. 
-             python topo_gen.py -p:Realtime0 
+             python topologyParse.py -p:Realtime0 
              will draw pipeline topology of Realtime0
     ''')
     print('''-f:format , format of output
              e.g. 
-             python topo_gen.py -p:Realtime0 -f:png
+             python topologyParse.py -p:Realtime0 -f:png
              will output pipeline topology of Realtime0 as png
     ''')
     print('*'*starCount)
@@ -309,19 +309,6 @@ def checkParameter(arg_len, arg_val):
         if res==False:
             return (False, optKV[0] + " not in OPTS")
     return (True, "Parameter is OK")
-
-def deleteExisted(fileName): #msmnile_usecase.xml_UsecaseJPEGEncodeLiveSnapshot.gv
-    for file in os.listdir("."):
-        cur_name = os.path.splitext(file)[0]  # 文件名
-        cur_type = os.path.splitext(file)[1]  # 文件类型
-        print("cur_name:", cur_name, "cur_type:", cur_type)
-        if cur_name == cur_name:
-            oldPath = '.' + os.path.sep + fileName
-            print("remove old file : ", oldPath)
-            try:
-                os.remove(oldPath)
-            except:
-                pass
 
 def clearTemp():
     for file in os.listdir('.'):
@@ -365,8 +352,6 @@ def main(argv):
 
     tree = et.parse(sourceFileName)
     root = tree.getroot()
-
-    #deleteExisted(sourceFileName)
 
     try:
         usercase = UseCase(root,sourceFileName,queryUsecase,queryPipeline,format,queryOrientation)
