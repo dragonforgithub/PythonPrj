@@ -192,7 +192,7 @@ class Pipeline(Drawable):
 
 
 class UseCase(Drawable):
-    def __init__(self, root, usecaseName=None, prefPipelineName=None,format='pdf',rankdir='LR'):
+    def __init__(self, root, sourceFileName=None, usecaseName=None, prefPipelineName=None,format='pdf',rankdir='LR'):
         self.root = root
         self.usercaseName = usecaseName
         self.prefPipelineName = prefPipelineName
@@ -203,7 +203,7 @@ class UseCase(Drawable):
         self.pipelines = []
     
         if(self.prefPipelineName == None):
-            self.usercaseGraph = gh(self.usercaseName, node_attr={'shape': 'circle'},format=self.format, graph_attr={'label': self.usercaseName})
+            self.usercaseGraph = gh(sourceFileName+"_"+self.usercaseName, node_attr={'shape': 'circle'},format=self.format, graph_attr={'label': self.usercaseName})
             self.configGraph()
         else:
             self.prefPipeline = findPipeline(root, self.prefPipelineName)
@@ -252,6 +252,7 @@ class UseCase(Drawable):
             pipeline.setFormat(self.format)
             pipeline.setRankDir(self.rankdir)
             pipeline.draw()
+            print("Generate:" + pipeline.pipelineName, pipeline.pipelineTopoId)
         else:
             usecaseRoot = findUsercase(self.root,self.usercaseName)
             print(self.usercaseName,usecaseRoot)
@@ -260,7 +261,7 @@ class UseCase(Drawable):
                 self.pipelines.append(pipeline)
             for pipeline in self.pipelines:
                 pipeline.draw(self.usercaseGraph)
-                print (pipeline.pipelineName,pipeline.pipelineTopoId)
+                print ("Generate:" + pipeline.pipelineName, pipeline.pipelineTopoId)
             #self.usercaseGraph.view()
             self.usercaseGraph.render(cleanup=True,view=True)
 
@@ -309,6 +310,19 @@ def checkParameter(arg_len, arg_val):
             return (False, optKV[0] + " not in OPTS")
     return (True, "Parameter is OK")
 
+def deleteExisted(fileName): #msmnile_usecase.xml_UsecaseJPEGEncodeLiveSnapshot.gv
+    for file in os.listdir("."):
+        cur_name = os.path.splitext(file)[0]  # 文件名
+        cur_type = os.path.splitext(file)[1]  # 文件类型
+        print("cur_name:", cur_name, "cur_type:", cur_type)
+        if cur_name == cur_name:
+            oldPath = '.' + os.path.sep + fileName
+            print("remove old file : ", oldPath)
+            try:
+                os.remove(oldPath)
+            except:
+                pass
+
 def clearTemp():
     for file in os.listdir('.'):
         absFile='.'+os.path.sep+file
@@ -338,30 +352,32 @@ def main(argv):
             exit(0)
         elif op == "-t":
             sourceFileName = value.strip(':')
-            print("sourceFileName：", sourceFileName)
+            print("->sourceFileName：", sourceFileName)
         elif op == "-u":
             queryUsecase = value.strip(':')
-            print("queryUsecase：", queryUsecase)
+            print("->queryUsecase：", queryUsecase)
         elif op == "-p":
             queryPipeline = value.strip(':')
-            print("queryPipeline：", queryPipeline)
+            print("->queryPipeline：", queryPipeline)
         elif op == "-f":
             format = value.strip(':')
-            print("format：", format)
+            print("->format：", format)
 
     tree = et.parse(sourceFileName)
     root = tree.getroot()
 
+    #deleteExisted(sourceFileName)
+
     try:
-        usercase = UseCase(root,queryUsecase,queryPipeline,format,queryOrientation)
+        usercase = UseCase(root,sourceFileName,queryUsecase,queryPipeline,format,queryOrientation)
         usercase.draw()
         
     except:
         print('ERROR : Could not find usecase = '+ str(queryUsecase) +' or pipeline = ' + str(queryPipeline))
         exit(1)
     finally:
-     #   clearTemp()
-     pass
+        #clearTemp()
+        pass
 
 
 if __name__ == '__main__':
